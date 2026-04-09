@@ -1,0 +1,190 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block title %}
+    {% if category %}{{ category.name }}{% else %}Descubre los mejores artículos{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if not category and not query %}
+<div class="container-fluid px-0 mb-5 border-bottom">
+    <div class="text-center py-5 px-3 bg-white">
+        <div class="py-5">
+            <h1 class="display-3 fw-bold mb-3 mx-auto text-dark" style="letter-spacing: -2px; max-width: 800px; line-height: 1;">NUEVA COLECCIÓN</h1>
+            <p class="fs-5 mb-5 text-muted mx-auto" style="max-width: 600px; letter-spacing: -0.5px;">Descubre artículos de alta calidad orientados al minimalismo absoluto.</p>
+            
+            <form action="{% url 'shop:product_list' %}" method="get" class="mx-auto" style="max-width: 500px;">
+                <div class="input-group border" style="background: #fff;">
+                    <input type="search" name="q" class="form-control border-0 px-4 py-3" placeholder="Buscar catálogo..." style="box-shadow: none; font-weight: 500;">
+                    <button type="submit" class="btn btn-light bg-transparent border-0 px-4 fw-bold text-dark" style="letter-spacing: -0.5px;">BUSCAR</button>
+                </div>
+            </form>
+
+            <div class="mt-4 d-flex justify-content-center align-items-center gap-2 flex-wrap" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
+                <span class="me-2 text-muted fw-bold">Tendencias:</span>
+                {% for c in categories|slice:":5" %}
+                <a href="{{ c.get_absolute_url }}" class="text-dark text-decoration-none px-2 py-1 border-bottom border-dark">{{ c.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="container mb-5">
+    {% if query or category %}
+        <h2 class="mb-4 fw-bold">
+            {% if query %}Resultados para "{{ query }}"{% else %}{{ category.name }}{% endif %}
+        </h2>
+    {% endif %}
+
+    <!-- Filter Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-5 pb-3 border-bottom">
+        <div class="dropdown">
+            <button class="btn border-0 py-2 fw-bold text-dark bg-transparent" type="button" data-bs-toggle="dropdown" style="letter-spacing: -0.5px;">
+                Filtro: {% if category %}{{ category.name }}{% else %}General{% endif %} ▼
+            </button>
+            <ul class="dropdown-menu border-0 shadow-sm rounded-0" style="min-width: 200px;">
+                <li><a class="dropdown-item py-2 fw-bold text-dark {% if not category %}bg-light{% endif %}" href="{% url 'shop:product_list' %}">Todos los artículos</a></li>
+                <li><hr class="dropdown-divider"></li>
+                {% for c in categories %}
+                <li><a class="dropdown-item py-2 text-dark {% if category.slug == c.slug %}bg-light fw-bold{% endif %}" href="{{ c.get_absolute_url }}">{{ c.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <span class="text-muted small">{{ products|length }} producto{{ products|length|pluralize:",s" }}</span>
+    </div>
+
+    <!-- Grid de Productos: 4 columnas en desktop -->
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 g-3">
+        {% for product in products %}
+        <div class="col">
+            <div class="product-card">
+                <!-- Foto con Overlay -->
+                <a href="{{ product.get_absolute_url }}" class="product-img-wrap">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="product-img" alt="{{ product.name }}">
+                    {% else %}
+                        <div class="product-img-empty">
+                            <span>Sin imagen</span>
+                        </div>
+                    {% endif %}
+                    <div class="product-overlay">
+                        <span class="product-overlay-btn">VER PRODUCTO</span>
+                    </div>
+                </a>
+                <!-- Info -->
+                <div class="product-info">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h6 class="product-name">
+                            <a href="{{ product.get_absolute_url }}" class="text-dark text-decoration-none">{{ product.name }}</a>
+                        </h6>
+                        <span class="product-price">${{ product.price }}</span>
+                    </div>
+                    <p class="product-category">{{ product.category.name }}</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p class="fs-4 text-muted fw-medium mt-5">No se encontraron productos.</p>
+            <a href="{% url 'shop:product_list' %}" class="btn btn-dark rounded-pill px-4 mt-3">Volver a explorar</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+/* === CARD PRODUCTO === */
+.product-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contenedor imagen */
+.product-img-wrap {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background-color: #f4f4f4;
+  border-radius: 2px;
+  /* Ratio cuadrado 1:1 - cambialo a 4/5 si prefieres retrato */
+  aspect-ratio: 1 / 1;
+  text-decoration: none;
+}
+
+/* Imagen */
+.product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.product-img-wrap:hover .product-img {
+  transform: scale(1.06);
+}
+
+/* Placeholder sin imagen */
+.product-img-empty {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  color: #aaa; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;
+}
+
+/* Overlay al hacer hover */
+.product-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 1.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.product-img-wrap:hover .product-overlay {
+  opacity: 1;
+}
+.product-overlay-btn {
+  background: #fff;
+  color: #0a0a0a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 0.55rem 1.4rem;
+  border-radius: 1px;
+  text-transform: uppercase;
+}
+
+/* Info del producto */
+.product-info {
+  padding: 0.85rem 0 0.4rem;
+}
+.product-name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: -0.3px;
+  margin-bottom: 0;
+  line-height: 1.3;
+  flex: 1;
+  padding-right: 0.5rem;
+}
+.product-price {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #0a0a0a;
+  white-space: nowrap;
+}
+.product-category {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #888;
+  margin-top: 0.2rem;
+  margin-bottom: 0;
+}
+</style>
+{% endblock %}

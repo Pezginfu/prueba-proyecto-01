@@ -1,0 +1,356 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+</div><!-- Cierre del container del base.html para usar fondo full-width -->
+
+<!-- Fondo Oscuro Wrapper -->
+<div style="background-color: #1a1a24; min-height: 100vh; padding-top: 4rem; padding-bottom: 5rem;">
+  <div class="container" style="max-width: 1100px;">
+
+    <!-- Tarjeta Maestra Principal -->
+    <div class="card border-0 shadow-lg bg-white" style="border-radius: 14px; overflow: hidden;">
+      <div class="row g-0" style="min-height: 560px;">
+
+        <!-- === COLUMNA IZQUIERDA: GALERÍA (thumbnails + viewer + zoom) === -->
+        <div class="col-md-7" style="background-color: #f0f0f0; position: relative; overflow: hidden;">
+          <div class="d-flex h-100">
+
+            <!-- Panel de Miniaturas Vertical -->
+            <div id="thumbnail-rail" style="
+              width: 72px;
+              min-width: 72px;
+              background: #e8e8e8;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              padding: 12px 8px;
+              gap: 8px;
+              overflow-y: auto;
+              border-right: 1px solid #ddd;
+            ">
+              <!-- Foto principal como primera miniatura -->
+              {% if product.image %}
+              <div class="thumb-item active" data-src="{{ product.image.url }}" onclick="setMainImage(this)" style="
+                width: 52px; height: 52px; border-radius: 6px; overflow: hidden;
+                border: 2px solid #2563eb; cursor: pointer; flex-shrink: 0;
+              ">
+                <img src="{{ product.image.url }}" style="width:100%; height:100%; object-fit:cover;">
+              </div>
+              {% endif %}
+              <!-- Fotos de galería adicionales -->
+              {% for img in product.images.all %}
+              <div class="thumb-item" data-src="{{ img.image.url }}" onclick="setMainImage(this)" style="
+                width: 52px; height: 52px; border-radius: 6px; overflow: hidden;
+                border: 2px solid transparent; cursor: pointer; flex-shrink: 0;
+                transition: border-color 0.2s;
+              ">
+                <img src="{{ img.image.url }}" style="width:100%; height:100%; object-fit:cover;">
+              </div>
+              {% endfor %}
+            </div>
+
+            <!-- Visor Principal + Zoom In-Place -->
+            <div style="flex: 1; position: relative; overflow: hidden; background-color: #e5e5e5; cursor: crosshair;" id="zoom-container">
+              
+              <!-- Imagen Principal (el zoom se aplica aqui mismo) -->
+              <img id="main-product-img"
+                src="{% if product.image %}{{ product.image.url }}{% endif %}"
+                alt="{{ product.name }}"
+                style="
+                  width: 100%; height: 100%;
+                  object-fit: contain; display: block;
+                  transform-origin: 50% 50%;
+                  transform: scale(1);
+                  transition: transform 0.1s ease;
+                  will-change: transform;
+                "
+              >
+
+              <!-- Flechas de Navegación -->
+              <button onclick="navGallery(-1)" style="
+                position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+                width: 36px; height: 36px; border-radius: 50%;
+                background: rgba(255,255,255,0.85); border: none;
+                font-size: 1rem; cursor: pointer; z-index: 10;
+                display: flex; align-items: center; justify-content: center;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+              ">&#8249;</button>
+              <button onclick="navGallery(1)" style="
+                position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+                width: 36px; height: 36px; border-radius: 50%;
+                background: rgba(255,255,255,0.85); border: none;
+                font-size: 1rem; cursor: pointer; z-index: 10;
+                display: flex; align-items: center; justify-content: center;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+              ">&#8250;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- === COLUMNA DERECHA: INFO PRODUCTO === -->
+        <div class="col-md-5 p-5 d-flex flex-column justify-content-center">
+
+          <h1 class="fw-bold text-dark mb-1" style="font-size: 2rem; letter-spacing: -1px;">{{ product.name }}</h1>
+
+          <!-- Estrellas Promedio Dinámico -->
+          <div class="d-flex align-items-center mb-3">
+            <span style="color: #2563eb; font-size: 0.9rem; letter-spacing: 2px;">
+              {% for i in "12345" %}
+                {% if forloop.counter <= avg_rating_int %}★{% else %}☆{% endif %}
+              {% endfor %}
+            </span>
+            {% if reviews.count > 0 %}
+              <span class="ms-2 text-muted" style="font-size: 0.73rem;">{{ avg_rating }}/5 ({{ reviews.count }} opinión{{ reviews.count|pluralize:"es" }})</span>
+            {% else %}
+              <span class="ms-2 text-muted" style="font-size: 0.73rem;">Sin reseñas aún</span>
+            {% endif %}
+          </div>
+
+          <!-- Precio -->
+          <p class="fw-bold text-dark mb-4" style="font-size: 1.9rem;">${{ product.price }}</p>
+
+          <!-- Formulario Add to Cart -->
+          <form action="{% url 'cart:cart_add' product.id %}" method="post" class="w-100 mb-2">
+            <div class="mb-3">
+              <label class="fw-bold text-uppercase mb-1" style="font-size: 0.68rem; letter-spacing: 1px; color: #888;">Cantidad</label>
+              {{ cart_product_form.quantity }}
+              {{ cart_product_form.override }}
+            </div>
+            {% csrf_token %}
+            <button type="submit" class="btn w-100 fw-bold py-3 text-white" style="
+              background-color: #2563eb;
+              border-radius: 5px;
+              font-size: 0.88rem;
+              letter-spacing: 0.8px;
+              border: none;
+            ">ADD TO CART</button>
+          </form>
+
+          <p class="text-center text-muted mb-4" style="font-size: 0.72rem; font-weight: 600;">30-day money-back guarantee</p>
+
+          <!-- Descripción expandible -->
+          <div class="border-top pt-3">
+            <a data-bs-toggle="collapse" href="#fullDetails" role="button"
+               class="text-dark fw-bold text-decoration-underline"
+               style="font-size: 0.82rem;">
+              Full Product Details
+            </a>
+            <div class="collapse mt-3" id="fullDetails">
+              <p class="text-muted lh-base" style="font-size: 0.82rem;">{{ product.description|linebreaksbr }}</p>
+              <p class="text-muted fw-semibold" style="font-size: 0.78rem;">Categoría: 
+                <a href="{{ product.category.get_absolute_url }}" class="text-dark text-decoration-none">{{ product.category.name }}</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN RESEÑAS ===== -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <h3 class="fw-bold text-white mb-4" style="letter-spacing: -1px;">Opiniones de clientes</h3>
+        <div class="row g-4">
+
+          <!-- Reseñas existentes -->
+          <div class="col-lg-8">
+            {% for review in reviews %}
+            <div class="card border-0 mb-3" style="background:#292935; border-radius: 10px;">
+              <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h6 class="fw-bold text-white mb-0">{{ review.user.username }}</h6>
+                  <span class="text-warning fw-bold" style="font-size: 0.82rem;">
+                    {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}
+                    <span class="text-white ms-1">{{ review.rating }}/5</span>
+                  </span>
+                </div>
+                <span class="text-muted d-block mb-2" style="font-size: 0.75rem;">{{ review.created|date:"d M Y" }}</span>
+                <p class="text-secondary mb-0" style="font-size: 0.88rem;">{{ review.comment }}</p>
+              </div>
+            </div>
+            {% empty %}
+            <div class="card border-0 p-4 text-center" style="background:#292935; border-radius:10px;">
+              <p class="text-muted mb-0">Todavía no hay opiniones. ¡Sé el primero en dejar una!</p>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Formulario de Reseña -->
+          <div class="col-lg-4">
+            <div class="card border-0 p-4" style="background: #292935; border-radius: 10px;">
+              <h5 class="fw-bold text-white mb-3">Deja tu opinión</h5>
+              {% if request.user.is_authenticated %}
+              <form method="post" action="." id="review-form">
+                {% csrf_token %}
+
+                <!-- Selector de Estrellas Interactivo -->
+                <div class="mb-3">
+                  <label class="text-muted d-block mb-2" style="font-size:0.75rem; letter-spacing:1px; text-transform:uppercase;">Tu valoración</label>
+                  <div id="star-picker" style="display:flex; gap:6px; cursor:pointer;">
+                    {% for i in "12345" %}
+                    <span class="star-btn" data-val="{{ forloop.counter }}"
+                      style="font-size:1.6rem; color:#555; transition:color 0.15s;"
+                    >★</span>
+                    {% endfor %}
+                  </div>
+                  <!-- Campo oculto que recibe el valor real -->
+                  {{ review_form.rating }}
+                  <p id="star-error" class="text-danger mt-1 mb-0" style="font-size:0.75rem; display:none;">Selecciona una valoración.</p>
+                </div>
+
+                <!-- Comentario con contador -->
+                <div class="mb-3">
+                  <label class="text-muted d-block mb-1" style="font-size:0.75rem; letter-spacing:1px; text-transform:uppercase;">Comentario</label>
+                  {{ review_form.comment }}
+                  <div class="text-end mt-1">
+                    <span id="char-count" style="font-size:0.7rem; color:#888;">0/500</span>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn w-100 fw-bold text-white mt-1"
+                  style="background-color:#2563eb; border-radius:5px;">
+                  Enviar Reseña
+                </button>
+              </form>
+              {% else %}
+              <p class="text-muted mb-0">
+                <a href="{% url 'login' %}" class="fw-bold text-white">Inicia sesión</a> para dejar una reseña.
+              </p>
+              {% endif %}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== ESTILOS LOCALES ===== -->
+<style>
+#id_quantity {
+  display: block; width: 100%;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #ddd; border-radius: 4px;
+  font-family: inherit; font-size: 0.9rem;
+  background: #fff;
+}
+#id_quantity:focus { outline: none; border-color: #2563eb; }
+
+.thumb-item:hover { border-color: #94a3b8 !important; }
+.thumb-item.active { border-color: #2563eb !important; }
+
+.thumb-item:hover { border-color: #94a3b8 !important; }
+.thumb-item.active { border-color: #2563eb !important; }
+
+#id_quantity {
+  display: block; width: 100%;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #ddd; border-radius: 4px;
+  font-family: inherit; font-size: 0.9rem;
+  background: #fff;
+}
+#id_quantity:focus { outline: none; border-color: #2563eb; }
+</style>
+
+<!-- ===== JAVASCRIPT: GALERÍA + ZOOM IN-PLACE ===== -->
+<script>
+const mainImg       = document.getElementById('main-product-img');
+const thumbItems    = document.querySelectorAll('.thumb-item');
+const zoomContainer = document.getElementById('zoom-container');
+const ZOOM_SCALE    = 2.5;   // Factor de aumento (2.5x)
+let currentIndex    = 0;
+
+// ─── Galería: cambiar foto al clic en miniatura ────────────────────────────
+function setMainImage(el) {
+  mainImg.src = el.getAttribute('data-src');
+  thumbItems.forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentIndex = Array.from(thumbItems).indexOf(el);
+}
+
+function navGallery(dir) {
+  const items = Array.from(thumbItems);
+  if (!items.length) return;
+  currentIndex = (currentIndex + dir + items.length) % items.length;
+  setMainImage(items[currentIndex]);
+}
+
+// ─── Zoom In-Place: scale + transform-origin dinámico ─────────────────────
+// Al hacer hover, la imagen se escala DENTRO del mismo recuadro.
+// El punto de ampliación sigue exactamente donde está el cursor.
+
+zoomContainer.addEventListener('mousemove', function(e) {
+  const rect = zoomContainer.getBoundingClientRect();
+  // Calcular posición % del mouse dentro del contenedor
+  const xPct = ((e.clientX - rect.left) / rect.width)  * 100;
+  const yPct = ((e.clientY - rect.top)  / rect.height) * 100;
+  // Aplicar zoom en el punto exacto del cursor
+  mainImg.style.transformOrigin = `${xPct}% ${yPct}%`;
+  mainImg.style.transform       = `scale(${ZOOM_SCALE})`;
+});
+
+zoomContainer.addEventListener('mouseleave', function() {
+  // Volver al tamaño original con transición suave
+  mainImg.style.transform       = 'scale(1)';
+  mainImg.style.transformOrigin = '50% 50%';
+});
+</script>
+
+<!-- ===== JAVASCRIPT: ESTRELLAS + CONTADOR ===== -->
+<script>
+// ─── Selector de Estrellas Interactivo ───────────────────────────────────────
+const starBtns   = document.querySelectorAll('.star-btn');
+const ratingHidden = document.getElementById('id_rating_hidden');
+const starError  = document.getElementById('star-error');
+const reviewForm = document.getElementById('review-form');
+let selectedRating = 0;
+
+function paintStars(upTo, color) {
+  starBtns.forEach((s, i) => {
+    s.style.color = i < upTo ? color : '#555';
+  });
+}
+
+// Hover: iluminar hasta donde está el mouse
+starBtns.forEach(btn => {
+  btn.addEventListener('mouseenter', () => paintStars(+btn.dataset.val, '#f59e0b'));
+  btn.addEventListener('mouseleave', () => paintStars(selectedRating, '#f59e0b'));
+  btn.addEventListener('click', () => {
+    selectedRating = +btn.dataset.val;
+    ratingHidden.value = selectedRating;  // Enviar valor real al backend
+    paintStars(selectedRating, '#f59e0b');
+    if (starError) starError.style.display = 'none';
+  });
+});
+
+// Validar que se seleccionó estrella antes de enviar
+if (reviewForm) {
+  reviewForm.addEventListener('submit', function(e) {
+    if (!selectedRating) {
+      e.preventDefault();
+      if (starError) starError.style.display = 'block';
+    }
+  });
+}
+
+// ─── Contador de Caracteres (500 máx) ────────────────────────────────────────
+const commentArea = document.getElementById('id_comment');
+const charCount   = document.getElementById('char-count');
+
+if (commentArea && charCount) {
+  commentArea.addEventListener('input', function() {
+    const len = this.value.length;
+    charCount.textContent = `${len}/500`;
+    charCount.style.color = len > 450 ? '#ef4444' : '#888';
+  });
+}
+</script>
+
+<!-- Re-abro container para el base.html -->
+<div class="container">
+{% endblock %}

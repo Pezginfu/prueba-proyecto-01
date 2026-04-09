@@ -1,0 +1,81 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Pagar pedido{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-5">
+                <h3 class="fw-bold mb-4 text-center">Pagar con tarjeta</h3>
+                <div class="d-flex justify-content-between mb-4 pb-3 border-bottom">
+                    <span class="fs-5 text-muted">Total a pagar:</span>
+                    <span class="fs-4 fw-bold text-success">${{ order.get_total_cost }}</span>
+                </div>
+                
+                <form id="payment-form" class="mt-4">
+                    {% csrf_token %}
+                    <div id="payment-element" class="mb-4">
+                        <!-- Stripe Elements injects UI here -->
+                    </div>
+                    <button id="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm">
+                        <span id="button-text">Pagar ahora</span>
+                    </button>
+                    <div id="payment-message" class="text-danger mt-3 d-none text-center fw-medium"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    const stripe = Stripe('{{ stripe_publishable_key }}');
+    const clientSecret = '{{ client_secret }}';
+    
+    // Si no hay client secret (por error en las llaves), mostramos error
+    if (!clientSecret) {
+        document.getElementById('payment-message').textContent = 'Error: No se pudo conectar con Stripe. Revisa las llaves de desarrollo.';
+        document.getElementById('payment-message').classList.remove('d-none');
+        document.getElementById('submit').disabled = true;
+    } else {
+        const elements = stripe.elements({ clientSecret });
+        const paymentElement = elements.create('payment');
+        paymentElement.mount('#payment-element');
+
+        const form = document.getElementById('payment-form');
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            document.getElementById('submit').disabled = true;
+            document.getElementById('button-text').textContent = 'Procesando...';
+            
+            const {error} = await stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                    return_url: window.location.origin + "{% url 'payment:completed' %}",
+                },
+                redirect: 'if_required'
+            });
+
+            if (error) {
+                const messageContainer = document.querySelector('#payment-message');
+                messageContainer.textContent = error.message;
+                messageContainer.classList.remove('d-none');
+                document.getElementById('submit').disabled = false;
+                document.getElementById('button-text').textContent = 'Pagar ahora';
+            } else {
+                // Pago exitoso (redireccionamos para que Django procese la orden)
+                const formData = new FormData();
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                
+                fetch("{% url 'payment:process' %}", {
+                    method: 'POST',
+                    body: formData,
+                }).then(() => {
+                    window.location.href = "{% url 'payment:completed' %}";
+                });
+            }
+        });
+    }
+</script>
+{% endblock %}

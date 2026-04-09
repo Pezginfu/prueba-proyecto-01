@@ -1,0 +1,25 @@
+{% extends "shop/base.html" %}
+{% block title %}¡Gracias por tu compra!{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-lg-8 text-center">
+        <div class="card border-success shadow-sm mb-4 border-2">
+            <div class="card-body p-5 bg-success bg-opacity-10">
+                <h1 class="text-success fw-bold mb-4">¡Gracias por tu compra, {{ order.first_name }}!</h1>
+                <p class="fs-5 mb-2">Tu pedido ha sido completado con éxito.</p>
+                <p class="fs-5">El número de orden es el <strong class="text-dark">#{{ order.id }}</strong>.</p>
+                <hr class="my-4 border-success opacity-25">
+                <div class="text-start bg-white p-4 rounded shadow-sm">
+                    <h4 class="mb-3 fw-bold text-dark">💳 Datos para transferencia:</h4>
+                    <ul class="list-unstyled mb-0 ms-3 fs-5">
+                        <li class="mb-2"><strong class="text-muted">Banco:</strong> Banco Prueba</li>
+                        <li class="mb-2"><strong class="text-muted">Cuenta:</strong> 123-456-789</li>
+                        <li><strong class="text-muted">Nombre:</strong> Tienda Django SRL</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <a href="{% url 'shop:product_list' %}" class="btn btn-primary btn-lg px-5 fw-bold shadow-sm">Volver a la tienda</a>
+    </div>
+</div>
+{% endblock %}

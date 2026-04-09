@@ -1,0 +1,18 @@
+{% extends "shop/base.html" %}
+
+{% block title %}¡Pago exitoso!{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-lg-8 text-center">
+        <div class="card border-success shadow-sm mb-4 border-2">
+            <div class="card-body p-5 bg-success bg-opacity-10">
+                <h1 class="text-success fw-bold mb-4">¡Pago exitoso!</h1>
+                <p class="fs-4 mb-2">Tu pedido ha sido procesado de forma segura.</p>
+                <p class="fs-5 text-muted">Recibirás un correo con los detalles de tu compra muy pronto.</p>
+            </div>
+        </div>
+        <a href="{% url 'shop:product_list' %}" class="btn btn-primary btn-lg px-5 fw-bold shadow-sm">Volver a la tienda</a>
+    </div>
+</div>
+{% endblock %}

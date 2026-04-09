@@ -1,0 +1,78 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Historial de Compras{% endblock %}
+
+{% block content %}
+<div class="row mt-5">
+  <div class="col-lg-10 mx-auto">
+    <div class="mb-5">
+      <div class="px-0">
+        <h2 class="fw-bold text-dark mb-5 border-bottom pb-3" style="letter-spacing: -2px; text-transform: uppercase;">HISTORIAL DE PEDIDOS</h2>
+        
+        {% if orders %}
+          <div class="accordion accordion-flush border-top" id="ordersAccordion">
+            {% for order in orders %}
+            <div class="accordion-item border-bottom border-0 bg-transparent">
+              <h2 class="accordion-header" id="heading{{ order.id }}">
+                <button class="accordion-button collapsed py-4 bg-transparent shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ order.id }}">
+                  <div class="d-flex justify-content-between w-100 pe-3">
+                      <span class="text-uppercase fw-bold" style="letter-spacing: 1px; font-size: 0.85rem;">Pedido #{{ order.id }} <span class="text-muted fw-normal mx-2">|</span> {{ order.created|date:"d.m.Y" }}</span>
+                      <span class="fw-bold fs-6">${{ order.get_total_cost }}</span>
+                  </div>
+                </button>
+              </h2>
+              <div id="collapse{{ order.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ order.id }}" data-bs-parent="#ordersAccordion">
+                <div class="accordion-body bg-light p-4 mb-3">
+                  
+                  <div class="d-flex justify-content-between mb-4 border-bottom pb-3">
+                      <div>
+                          <p class="mb-1 text-muted small text-uppercase" style="letter-spacing: 1px;">Estado</p>
+                          {% if order.paid %}
+                              <span class="badge bg-dark rounded-0 fw-bold">PAGADO (STRIPE)</span>
+                          {% else %}
+                              <span class="badge bg-secondary rounded-0">PENDIENTE</span>
+                          {% endif %}
+                      </div>
+                      <div class="text-end">
+                          <p class="mb-1 text-muted small text-uppercase" style="letter-spacing: 1px;">ID Transacción</p>
+                          <p class="fw-bold mb-0 text-dark">ORD-{{ order.id|stringformat:"05d" }}</p>
+                      </div>
+                  </div>
+
+                  <table class="table table-borderless table-sm mb-0">
+                    <thead class="text-muted border-bottom" style="font-size: 0.75rem; text-transform: uppercase;">
+                      <tr>
+                        <th class="pb-2">Artículo</th>
+                        <th class="text-center pb-2">Cant.</th>
+                        <th class="text-end pb-2">Precio</th>
+                      </tr>
+                    </thead>
+                    <tbody class="align-middle">
+                      {% for item in order.items.all %}
+                      <tr>
+                        <td class="fw-semibold py-2">{{ item.product.name }}</td>
+                        <td class="text-center">{{ item.quantity }}</td>
+                        <td class="text-end">${{ item.price }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                  
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center py-5 my-5">
+            <div class="mb-4 text-muted fw-light" style="letter-spacing: 4px;">— HISTORIAL VACÍO —</div>
+            <h3 class="text-dark fw-bold mb-4" style="letter-spacing: -1px;">Aún no tienes pedidos.</h3>
+            <a href="{% url 'shop:product_list' %}" class="btn btn-dark rounded-0 px-5 fw-bold" style="letter-spacing: 1px;">VER CATÁLOGO</a>
+          </div>
+        {% endif %}
+        
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

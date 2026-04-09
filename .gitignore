@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+
+# Environments
+venv/
+env/
+ENV/
+
+# Database
+db.sqlite3
+
+# System
+.DS_Store
+
+# Media & Static
+media/
+staticfiles/
+*.mp4
+*.webp
+*.png
+*.jpg
+*.jpeg

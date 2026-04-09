@@ -1,0 +1,18 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Pago cancelado o fallido{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-lg-8 text-center">
+        <div class="card border-danger shadow-sm mb-4 border-2">
+            <div class="card-body p-5 bg-danger bg-opacity-10">
+                <h1 class="text-danger fw-bold mb-4">El pago no pudo procesarse</h1>
+                <p class="fs-4 mb-2">Hubo un problema con el pago o fue cancelado.</p>
+                <p class="fs-5 text-muted">Tu pedido no ha sido cobrado. Por favor, intenta de nuevo.</p>
+            </div>
+        </div>
+        <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-danger btn-lg px-5 fw-bold shadow-sm">Volver al carrito</a>
+    </div>
+</div>
+{% endblock %}

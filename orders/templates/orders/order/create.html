@@ -1,0 +1,74 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-lg-7 mb-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h2 class="card-title fw-bold text-dark mb-4 border-bottom pb-3">Finaliza tu compra</h2>
+                <form method="post" class="needs-validation">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-secondary">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <div class="form-text text-muted">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% for error in field.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-success btn-lg w-100 fw-bold shadow-sm">Realizar Pedido</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0 bg-light">
+            <div class="card-body p-4">
+                <h3 class="card-title fw-bold text-dark mb-4 border-bottom pb-3">Resumen del pedido</h3>
+                <ul class="list-group list-group-flush bg-transparent mb-4">
+                    {% for item in cart %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 border-secondary border-opacity-25">
+                            <div>
+                                <span class="badge bg-secondary rounded-pill me-2">{{ item.quantity }}</span>
+                                <span class="fw-medium text-dark">{{ item.product.name }}</span>
+                            </div>
+                            <span class="text-success fw-bold">${{ item.total_price }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary border-opacity-25">
+                    <span class="fs-4 fw-bold text-secondary">Total:</span>
+                    <span class="fs-3 fw-bold text-success">${{ cart.get_total_price }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Auto-apply bootstrap form-control class to all inputs except checkboxes */
+input[type="text"], input[type="email"], textarea {
+    display: block;
+    width: 100%;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+</style>
+{% endblock %}

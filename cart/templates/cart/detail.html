@@ -1,0 +1,85 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Tu carrito{% endblock %}
+
+{% block content %}
+<div class="row mt-5">
+  <div class="col-lg-10 mx-auto">
+    {% if cart %}
+    <div class="mb-5">
+      <div class="card-body px-0">
+        <h2 class="card-title fw-bold text-dark mb-4 pb-3" style="letter-spacing: -1px; text-transform: uppercase;">BOLSA DE COMPRAS</h2>
+        
+        <div class="table-responsive">
+          <table class="table align-middle table-borderless border-bottom">
+            <thead class="text-secondary border-bottom" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
+              <tr>
+                <th scope="col" class="pb-3">Artículo</th>
+                <th scope="col" class="pb-3 text-center">Cantidad</th>
+                <th scope="col" class="pb-3 text-end">Total</th>
+                <th scope="col" class="pb-3 text-end"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in cart %}
+                {% with product=item.product %}
+                <tr class="border-bottom">
+                  <td class="py-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="{{ product.get_absolute_url }}">
+                          {% if product.image %}
+                            <img src="{{ product.image.url }}" class="img-fluid" style="width: 60px; height: 80px; object-fit: cover;">
+                          {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center text-muted" style="width: 60px; height: 80px; font-size: 10px; text-transform: uppercase;">Sin Img</div>
+                          {% endif %}
+                        </a>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">{{ product.name }}</h6>
+                            <span class="text-muted small">${{ item.price }} c/u</span>
+                        </div>
+                    </div>
+                  </td>
+                  <td class="py-4 text-center">
+                    <form action="{% url 'cart:cart_add' product.id %}" method="post" class="d-flex align-items-center justify-content-center gap-2">
+                      {{ item.update_quantity_form.quantity }}
+                      {{ item.update_quantity_form.override }}
+                      <button type="submit" class="btn btn-sm btn-outline-dark rounded-0 fw-bold" style="font-size: 0.7rem;">OK</button>
+                      {% csrf_token %}
+                    </form>
+                  </td>
+                  <td class="py-4 text-end fw-bold text-dark fs-5">${{ item.total_price }}</td>
+                  <td class="py-4 text-end">
+                    <form action="{% url 'cart:cart_remove' product.id %}" method="post">
+                      <button type="submit" class="btn btn-sm btn-link text-muted text-decoration-none fw-bold" style="font-size: 0.8rem;">QUITAR</button>
+                      {% csrf_token %}
+                    </form>
+                  </td>
+                </tr>
+                {% endwith %}
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr class="fw-bold fs-4">
+                <td colspan="2" class="text-end py-4 border-0 text-muted" style="letter-spacing: -1px;">TOTAL A PAGAR:</td>
+                <td colspan="2" class="text-end py-4 border-0 text-dark" style="letter-spacing: -1px;">${{ cart.get_total_price }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <div class="d-flex justify-content-between align-items-center mb-5 border-top pt-4">
+      <a href="{% url 'shop:product_list' %}" class="btn btn-link text-dark text-decoration-none fw-bold" style="letter-spacing: -0.5px;">VOLVER</a>
+      <a href="{% url 'orders:order_create' %}" class="btn btn-dark btn-lg px-5 rounded-0 fw-bold" style="letter-spacing: 1px;">CHECKOUT</a>
+    </div>
+    {% else %}
+    <div class="text-center py-5 my-5">
+      <div class="mb-4 text-muted fw-light" style="letter-spacing: 4px;">— BOLSA VACÍA —</div>
+      <h2 class="text-dark fw-bold mb-4" style="letter-spacing: -2px;">No has seleccionado nada.</h2>
+      <a href="{% url 'shop:product_list' %}" class="btn btn-dark rounded-0 btn-lg px-5 fw-bold" style="letter-spacing: 1px;">VER CATÁLOGO</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
