@@ -10,14 +10,10 @@
             }
         }
     ],
-    "routes": [
+    "rewrites": [
         {
-            "src": "/static/(.*)",
-            "dest": "/static/$1"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "myshop/wsgi.py"
+            "source": "/(.*)",
+            "destination": "/myshop/wsgi.py"
         }
     ]
 }
