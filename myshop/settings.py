@@ -168,9 +168,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Credenciales de Cloudinary
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'dummy'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY', 'dummy'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', 'dummy'),
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'dbvvzcsys'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY', '243419145991792'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', 'rpw2AqQxoK_Zdt-ygiC5zx7CtS4'),
 }
 
 # Default primary key field type
