@@ -130,110 +130,133 @@
 
           <p class="text-center text-muted mb-4" style="font-size: 0.72rem; font-weight: 600;">30-day money-back guarantee</p>
 
-          <!-- Descripción expandible -->
-          <div class="border-top pt-3">
-            <a data-bs-toggle="collapse" href="#fullDetails" role="button"
-               class="text-dark fw-bold text-decoration-underline"
-               style="font-size: 0.82rem;">
-              Full Product Details
-            </a>
-            <div class="collapse mt-3" id="fullDetails">
-              <p class="text-muted lh-base" style="font-size: 0.82rem;">{{ product.description|linebreaksbr }}</p>
-              <p class="text-muted fw-semibold" style="font-size: 0.78rem;">Categoría: 
-                <a href="{{ product.category.get_absolute_url }}" class="text-dark text-decoration-none">{{ product.category.name }}</a>
-              </p>
-            </div>
-          </div>
+          <p class="text-center text-muted mb-4" style="font-size: 0.72rem; font-weight: 600;">30-day money-back guarantee</p>
         </div>
       </div>
     </div>
 
-    <!-- ===== SECCIÓN RESEÑAS ===== -->
-    <div class="row mt-5">
-      <div class="col-12">
-        <h3 class="fw-bold text-dark mb-4" style="letter-spacing: -1px;">Opiniones de clientes</h3>
-        <div class="row g-4">
+    <!-- ===== TABS DE INFORMACIÓN ===== -->
+    <div class="mt-5">
+      <ul class="nav nav-tabs fw-bold mb-4" id="productTabs" role="tablist" style="border-bottom: 2px solid #ebebeb;">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active text-dark px-4 py-3" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc-pane" type="button" role="tab" style="border: none; border-bottom: 3px solid transparent; border-radius: 0;">Descripción</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link text-dark px-4 py-3" id="spec-tab" data-bs-toggle="tab" data-bs-target="#spec-pane" type="button" role="tab" style="border: none; border-bottom: 3px solid transparent; border-radius: 0;">Especificaciones</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link text-dark px-4 py-3" id="review-tab" data-bs-toggle="tab" data-bs-target="#review-pane" type="button" role="tab" style="border: none; border-bottom: 3px solid transparent; border-radius: 0;">Opiniones de clientes</button>
+        </li>
+      </ul>
 
-          <!-- Reseñas existentes -->
-          <div class="col-lg-8">
-            {% for review in reviews %}
-            <div class="card border mb-3 shadow-sm" style="background:#fff; border-radius: 8px;">
-              <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <h6 class="fw-bold text-dark mb-0">{{ review.user.username }}</h6>
-                  <span class="text-warning fw-bold" style="font-size: 0.82rem;">
-                    {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}
-                    <span class="text-dark ms-1">{{ review.rating }}/5</span>
-                  </span>
+      <style>
+        .nav-tabs .nav-link.active { border-bottom-color: #2563eb !important; color: #2563eb !important; background: transparent; }
+        .nav-tabs .nav-link:hover:not(.active) { border-bottom-color: #ccc !important; }
+      </style>
+
+      <div class="tab-content" id="productTabsContent">
+        <!-- PESTAÑA: DESCRIPCIÓN -->
+        <div class="tab-pane fade show active px-3" id="desc-pane" role="tabpanel" tabindex="0">
+          <p class="text-dark lh-lg" style="font-size: 0.95rem;">{{ product.description|linebreaksbr }}</p>
+          <p class="text-muted fw-semibold mt-4" style="font-size: 0.85rem;">Categoría: 
+            <a href="{{ product.category.get_absolute_url }}" class="text-dark text-decoration-none">{{ product.category.name }}</a>
+          </p>
+        </div>
+
+        <!-- PESTAÑA: ESPECIFICACIONES -->
+        <div class="tab-pane fade px-3" id="spec-pane" role="tabpanel" tabindex="0">
+          {% if product.specifications %}
+            <p class="text-dark lh-lg" style="font-size: 0.95rem;">{{ product.specifications|linebreaksbr }}</p>
+          {% else %}
+            <p class="text-muted" style="font-size: 0.95rem;">No hay especificaciones detalladas para este producto.</p>
+          {% endif %}
+        </div>
+
+        <!-- PESTAÑA: RESEÑAS -->
+        <div class="tab-pane fade" id="review-pane" role="tabpanel" tabindex="0">
+          <div class="row g-4 mt-2">
+            <!-- Reseñas existentes -->
+            <div class="col-lg-7">
+              {% for review in reviews %}
+              <div class="card border mb-3 shadow-sm" style="background:#fff; border-radius: 8px;">
+                <div class="card-body p-4">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold text-dark mb-0">{{ review.user.username }}</h6>
+                    <span class="text-warning fw-bold" style="font-size: 0.82rem;">
+                      {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}
+                      <span class="text-dark ms-1">{{ review.rating }}/5</span>
+                    </span>
+                  </div>
+                  <span class="text-muted d-block mb-2" style="font-size: 0.75rem;">{{ review.created|date:"d M Y" }}</span>
+                  <p class="text-dark mb-0" style="font-size: 0.88rem;">{{ review.comment }}</p>
                 </div>
-                <span class="text-muted d-block mb-2" style="font-size: 0.75rem;">{{ review.created|date:"d M Y" }}</span>
-                <p class="text-dark mb-0" style="font-size: 0.88rem;">{{ review.comment }}</p>
+              </div>
+              {% empty %}
+              <div class="card border p-4 text-center shadow-sm" style="background:#fff; border-radius:8px;">
+                <p class="text-muted mb-0">Todavía no hay opiniones. ¡Sé el primero en dejar una!</p>
+              </div>
+              {% endfor %}
+            </div>
+
+            <!-- Formulario de Reseña -->
+            <div class="col-lg-5">
+              <div class="card border p-4 shadow-sm" style="background: #fff; border-radius: 8px;">
+                <h5 class="fw-bold text-dark mb-3">Deja tu opinión</h5>
+                {% if request.user.is_authenticated %}
+                <form method="post" action="." id="review-form">
+                  {% csrf_token %}
+                  <div class="mb-3">
+                    <label class="text-muted d-block mb-2 fw-bold" style="font-size:0.75rem; letter-spacing:1px; text-transform:uppercase;">Tu valoración</label>
+                    <div id="star-picker" style="display:flex; gap:6px; cursor:pointer;">
+                      {% for i in "12345" %}<span class="star-btn" data-val="{{ forloop.counter }}" style="font-size:1.6rem; color:#ccc; transition:color 0.15s;">★</span>{% endfor %}
+                    </div>
+                    {{ review_form.rating }}
+                    <p id="star-error" class="text-danger mt-1 mb-0" style="font-size:0.75rem; display:none;">Selecciona una valoración.</p>
+                  </div>
+                  <div class="mb-3">
+                    <label class="text-muted d-block mb-1 fw-bold" style="font-size:0.75rem; letter-spacing:1px; text-transform:uppercase;">Comentario</label>
+                    <div class="review-comment-box">{{ review_form.comment }}</div>
+                    <div class="text-end mt-1"><span id="char-count" style="font-size:0.7rem; color:#888;">0/500</span></div>
+                  </div>
+                  <button type="submit" class="btn btn-dark w-100 fw-bold py-2 mt-1" style="border-radius:4px;">Enviar Reseña</button>
+                </form>
+                <style>
+                    .review-comment-box textarea { display: block; width: 100%; border: 1px solid #ebebeb; border-radius: 4px; padding: 0.8rem; font-family: inherit; font-size: 0.85rem; }
+                    .review-comment-box textarea:focus { outline: none; border-color: #0a0a0a; }
+                </style>
+                {% else %}
+                <p class="text-muted mb-0"><a href="{% url 'login' %}" class="fw-bold text-dark text-decoration-underline">Inicia sesión</a> para dejar una reseña.</p>
+                {% endif %}
               </div>
             </div>
-            {% empty %}
-            <div class="card border p-4 text-center shadow-sm" style="background:#fff; border-radius:8px;">
-              <p class="text-muted mb-0">Todavía no hay opiniones. ¡Sé el primero en dejar una!</p>
-            </div>
-            {% endfor %}
           </div>
-
-          <!-- Formulario de Reseña -->
-          <div class="col-lg-4">
-            <div class="card border p-4 shadow-sm" style="background: #fff; border-radius: 8px;">
-              <h5 class="fw-bold text-dark mb-3">Deja tu opinión</h5>
-              {% if request.user.is_authenticated %}
-              <form method="post" action="." id="review-form">
-                {% csrf_token %}
-
-                <!-- Selector de Estrellas Interactivo -->
-                <div class="mb-3">
-                  <label class="text-muted d-block mb-2 fw-bold" style="font-size:0.75rem; letter-spacing:1px; text-transform:uppercase;">Tu valoración</label>
-                  <div id="star-picker" style="display:flex; gap:6px; cursor:pointer;">
-                    {% for i in "12345" %}
-                    <span class="star-btn" data-val="{{ forloop.counter }}"
-                      style="font-size:1.6rem; color:#ccc; transition:color 0.15s;"
-                    >★</span>
-                    {% endfor %}
-                  </div>
-                  <!-- Campo oculto que recibe el valor real -->
-                  {{ review_form.rating }}
-                  <p id="star-error" class="text-danger mt-1 mb-0" style="font-size:0.75rem; display:none;">Selecciona una valoración.</p>
-                </div>
-
-                <!-- Comentario con contador -->
-                <div class="mb-3">
-                  <label class="text-muted d-block mb-1 fw-bold" style="font-size:0.75rem; letter-spacing:1px; text-transform:uppercase;">Comentario</label>
-                  <!-- Let's assume review_form.comment generates a textarea. Ensure it has form-control if possible via base.css -->
-                  <div class="review-comment-box">
-                    {{ review_form.comment }}
-                  </div>
-                  <div class="text-end mt-1">
-                    <span id="char-count" style="font-size:0.7rem; color:#888;">0/500</span>
-                  </div>
-                </div>
-
-                <button type="submit" class="btn btn-dark w-100 fw-bold py-2 mt-1"
-                  style="border-radius:4px;">
-                  Enviar Reseña
-                </button>
-              </form>
-              <style>
-                  .review-comment-box textarea {
-                      display: block; width: 100%; border: 1px solid #ebebeb; border-radius: 4px; padding: 0.8rem; font-family: inherit; font-size: 0.85rem;
-                  }
-                  .review-comment-box textarea:focus { outline: none; border-color: #0a0a0a; }
-              </style>
-              {% else %}
-              <p class="text-muted mb-0">
-                <a href="{% url 'login' %}" class="fw-bold text-dark text-decoration-underline">Inicia sesión</a> para dejar una reseña.
-              </p>
-              {% endif %}
-            </div>
-          </div>
-
         </div>
       </div>
     </div>
+
+    <!-- ===== PRODUCTOS RELACIONADOS ===== -->
+    {% if related_products %}
+    <div class="mt-5 pt-4 border-top">
+      <h4 class="fw-bold text-dark mb-4" style="letter-spacing: -0.5px;">Productos Relacionados</h4>
+      <div class="row g-4">
+        {% for rel_product in related_products %}
+        <div class="col-md-3 col-6">
+          <div class="card h-100 border-0 shadow-sm" style="border-radius: 8px; overflow:hidden;">
+            <a href="{{ rel_product.get_absolute_url }}">
+              <img src="{% if rel_product.image %}{{ rel_product.image.url }}{% else %}{# dummy #}{% endif %}" class="card-img-top" alt="{{ rel_product.name }}" style="height: 180px; object-fit: contain; padding: 1rem; background-color: #f8f9fa;">
+            </a>
+            <div class="card-body text-center p-3">
+              <h6 class="fw-bold text-dark text-truncate mb-1" style="font-size:0.9rem;">
+                <a href="{{ rel_product.get_absolute_url }}" class="text-dark text-decoration-none">{{ rel_product.name }}</a>
+              </h6>
+              <p class="text-muted fw-bold mb-0" style="font-size:1rem;">${{ rel_product.price }}</p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
 
   </div>
 </div>

@@ -47,6 +47,9 @@ def product_detail(request, id, slug):
             return redirect(product.get_absolute_url())
     else:
         review_form = ReviewForm()
+    # Fetch related products (same category, exclude current)
+    related_products = Product.objects.filter(category=product.category, available=True).exclude(id=product.id)[:4]
+
     return render(request, 'shop/product/detail.html', {
         'product': product,
         'cart_product_form': cart_product_form,
@@ -54,6 +57,7 @@ def product_detail(request, id, slug):
         'review_form': review_form,
         'avg_rating': avg_rating,
         'avg_rating_int': avg_rating_int,
+        'related_products': related_products,
     })
 
 def contact(request):
