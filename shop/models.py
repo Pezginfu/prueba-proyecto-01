@@ -25,7 +25,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200)
-    image = models.ImageField(upload_to='products/%Y/%m/%d', blank=True)
+    image = models.ImageField(upload_to='products/%Y/%m/%d', blank=True, max_length=255)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField(default=10)
@@ -51,7 +51,7 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='products/gallery/%Y/%m/%d')
+    image = models.ImageField(upload_to='products/gallery/%Y/%m/%d', max_length=255)
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
